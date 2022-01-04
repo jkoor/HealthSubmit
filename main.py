@@ -241,8 +241,8 @@ def submit_health_condition(account, password):
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
     # 读取当前目录data.txt, 添加账号
-    # with open('/opt/HealthSubmit/data.json', 'r') as f_obj:
-    with open('data.json', 'r') as f_obj:
+    with open('/opt/HealthSubmit/data.json', 'r') as f_obj:
+    # with open('data.json', 'r') as f_obj:
         accounts = json.loads(f_obj.read())
 
     # 批量填报
