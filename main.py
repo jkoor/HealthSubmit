@@ -176,7 +176,6 @@ def submit_healthcondition():
                       "Chrome/86.0.4240.198 Safari/537.36 "
     }
     # 提交表单，填报健康系统
-    # global result
     try:
         r = session.post(url=post_url, headers=post_header, data=submit_data)
         soup = BeautifulSoup(r.text, 'lxml')
