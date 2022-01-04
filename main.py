@@ -178,7 +178,7 @@ def get_submit_data(account, session):
         return result
 
 
-def submit_healthcondition(account, session):
+def post_submit_data(account, session):
     """提交信息表单模块
 
     Args:
@@ -210,13 +210,17 @@ def submit_healthcondition(account, session):
         return result
 
 
-def main(account, password, email):
+def submit_health_condition(account, password):
     """登录并填报健康系统
+
+    可直接调用此函数, 传入学号密码参数即可进行健康系统填报,return值可自行修改
+    for example: submit_health_condition("1000000000", "100000")
 
     Args:
         account: 学号
         password: 密码
-        email: 邮箱
+    Return:
+        list形式, [最终填报结果, 填报时间, 提交表单]
     """
 
     # 构造Session
@@ -227,13 +231,11 @@ def main(account, password, email):
     if final_result is True:
         final_result = get_submit_data(account, session)
         if final_result is True:
-            final_result = submit_healthcondition(account, session)
-    submit_time = time.asctime(time.localtime(time.time()))  # 填报时间
-    print(submit_time)
+            final_result = post_submit_data(account, session)
+    post_time = time.asctime(time.localtime(time.time()))  # 填报时间
+    print(post_time)
     print(final_result)
-
-    # 邮件告知填报结果
-    send_email.send_result(final_result, submit_data, email, submit_time)
+    return [final_result, post_time, submit_data]
 
 
 # 按间距中的绿色按钮以运行脚本。
@@ -245,5 +247,9 @@ if __name__ == '__main__':
 
     # 批量填报
     for acc in accounts:
-        main(acc["xh"], acc["pwd"], acc["email"])
+        submit_result = submit_health_condition(acc["xh"], acc["pwd"])
+        # 邮件告知填报结果
+        submit_msg = submit_result[0]
+        submit_time = submit_result[1]
+        send_email.send_result(submit_msg, submit_data, acc["email"], submit_time)
         time.sleep(5)
