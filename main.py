@@ -58,7 +58,8 @@ submit_data = {
     "radioCount": "13",
     "checkboxCount": "0",
     "blackCount": "4",
-    "PZData": """[{"OptionName": "是", "SelectId": "e2f169d0-0778-4e3e-8ebf-64ce5a44f307",
+    "PZData":
+    """[{"OptionName": "是", "SelectId": "e2f169d0-0778-4e3e-8ebf-64ce5a44f307",
                 "TitleId": "926853bd-6292-48ef-b554-0ea0cb99b808", "OptionType": "0"},
                {"OptionName": "否", "SelectId": "c8ecb725-9788-4ed0-b9d2-4be23444ce3e",
                 "TitleId": "5c2ddaef-1cf4-4995-921c-de1585e71fe1", "OptionType": "0"},
@@ -86,6 +87,34 @@ submit_data = {
                 "TitleId": "7d852786-1eca-4beb-82f2-9b52fd46ad6e", "OptionType": "0"}]""",
     "ReSubmiteFlag": ""
 }
+
+
+def submit_health_condition(account, password):
+    """登录并填报健康系统
+
+    可直接调用此函数, 传入学号密码参数即可进行健康系统填报,return值可自行修改
+    for example: main.submit_health_condition("1000000000", "100000")
+
+    Args:
+        account: 学号
+        password: 密码
+    Return:
+        list形式, [最终填报结果, 填报时间, 提交表单]
+    """
+
+    # 构造Session
+    session = requests.session()
+
+    # 若当前步骤失败，则不在往下进行
+    final_result = login_health_web(account, password, session)
+    if final_result is True:
+        final_result = get_submit_data(account, session)
+        if final_result is True:
+            final_result = post_submit_data(account, session)
+    post_time = time.asctime(time.localtime(time.time()))  # 填报时间
+    print(post_time)
+    print(final_result)
+    return [final_result, post_time, submit_data]
 
 
 def login_health_web(account, password, session):
@@ -145,9 +174,11 @@ def get_submit_data(account, session):
 
     # 将获取到的信息添加到submit_data表单
     try:
-        datas = ["StudentId", "Name", "Sex", "SpeType", "CollegeNo", "SpeGrade", "SpecialtyName", "ClassName",
-                 "MoveTel", "IdCard",
-                 "FaProvinceName", "FaCityName", "FaCountyName"]
+        datas = [
+            "StudentId", "Name", "Sex", "SpeType", "CollegeNo", "SpeGrade",
+            "SpecialtyName", "ClassName", "MoveTel", "IdCard",
+            "FaProvinceName", "FaCityName", "FaCountyName"
+        ]
         for data in datas:
             a = soup.find(id=data)
             submit_data[data] = a["value"]
@@ -155,14 +186,16 @@ def get_submit_data(account, session):
         submit_data["ProvinceName"] = submit_data["FaProvinceName"]
         submit_data["CityName"] = submit_data["FaCityName"]
         submit_data["CountyName"] = submit_data["FaCountyName"]
-        a = soup.find(class_="select-style required validate", attrs={"name": "FaCounty"})
+        a = soup.find(class_="select-style required validate",
+                      attrs={"name": "FaCounty"})
         submit_data["FaProvince"] = a["data-defaultvalue"][:2] + "0000"
         submit_data["FaCity"] = a["data-defaultvalue"][:4] + "00"
         submit_data["FaCounty"] = a["data-defaultvalue"]
         submit_data["Province"] = submit_data["FaProvince"]
         submit_data["City"] = submit_data["FaCity"]
         submit_data["County"] = submit_data["FaCounty"]
-        a = soup.find(class_="required validate input-style", attrs={"name": "FaComeWhere"})
+        a = soup.find(class_="required validate input-style",
+                      attrs={"name": "FaComeWhere"})
         submit_data["FaComeWhere"] = a["value"]
         submit_data["ComeWhere"] = a["value"]
         a = soup.find(attrs={"name": "ReSubmiteFlag"})
@@ -210,39 +243,11 @@ def post_submit_data(account, session):
         return result
 
 
-def submit_health_condition(account, password):
-    """登录并填报健康系统
-
-    可直接调用此函数, 传入学号密码参数即可进行健康系统填报,return值可自行修改
-    for example: submit_health_condition("1000000000", "100000")
-
-    Args:
-        account: 学号
-        password: 密码
-    Return:
-        list形式, [最终填报结果, 填报时间, 提交表单]
-    """
-
-    # 构造Session
-    session = requests.session()
-
-    # 若当前步骤失败，则不在往下进行
-    final_result = login_health_web(account, password, session)
-    if final_result is True:
-        final_result = get_submit_data(account, session)
-        if final_result is True:
-            final_result = post_submit_data(account, session)
-    post_time = time.asctime(time.localtime(time.time()))  # 填报时间
-    print(post_time)
-    print(final_result)
-    return [final_result, post_time, submit_data]
-
-
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
-    # 读取当前目录data.txt, 添加账号
-    with open('/opt/HealthSubmit/data.json', 'r') as f_obj:
+    # 读取文件, 添加账号
     # with open('data.json', 'r') as f_obj:
+    with open('/opt/HealthSubmit/data.json', 'r') as f_obj:
         accounts = json.loads(f_obj.read())
 
     # 批量填报
@@ -251,5 +256,9 @@ if __name__ == '__main__':
         # 邮件告知填报结果
         submit_msg = submit_result[0]
         submit_time = submit_result[1]
-        send_email.send_result(submit_msg, submit_data, acc["email"], submit_time)
+        send_email.send_result(submit_msg,
+                               submit_data,
+                               acc["email"],
+                               submit_time,
+                               reg_flag=False)
         time.sleep(5)
