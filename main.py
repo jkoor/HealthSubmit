@@ -10,10 +10,11 @@ import requests
 from bs4 import BeautifulSoup
 
 web_url = "http://xg.sylu.edu.cn/SPCP/Web/"  # 登录地址
-accounts = {}   # 待填报账号字典
+accounts = {}  # 待填报账号字典
 
 # 读取当前目录data.txt, 添加账号
-with open('/opt/HealthSubmit/data.json', 'r') as f_obj:
+# with open('/opt/HealthSubmit/data.json', 'r') as f_obj:
+with open('data.json', 'r') as f_obj:
     accounts = json.loads(f_obj.read())
 
 # 待提交表单
