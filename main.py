@@ -4,17 +4,11 @@
 
 import json
 import time
-import lxml
-import send_email
+
 import requests
 from bs4 import BeautifulSoup
 
-web_url = "http://xg.sylu.edu.cn/SPCP/Web/"  # 登录地址
-accounts = {}   # 待填报账号字典
-
-# 读取当前目录data.txt, 添加账号
-with open('/opt/HealthSubmit/data.json', 'r') as f_obj:
-    accounts = json.loads(f_obj.read())
+import send_email
 
 # 待提交表单
 submit_data = {
@@ -94,51 +88,70 @@ submit_data = {
 }
 
 
-def login_web(account, password, url):
-    """登录健康填报系统"""
+def login_health_web(account, password, session):
+    """登录健康填报模块
+
+    Args:
+        account: 学号
+        password: 密码
+        session: 传入session, 保持会话
+    Return:
+        登录结果; 登录成功返回True, 失败则返回失败原因
+    """
+
+    login_url = "http://xg.sylu.edu.cn/SPCP/Web/"  # 登录地址
     login_header = {
         "Host": "xg.sylu.edu.cn",
         "Origin": "http://xg.sylu.edu.cn",
         "Referer": "http://xg.sylu.edu.cn/SPCP/Web/",
     }
-    data = {
+    login_data = {
         "StuLoginMode": "1",
         "txtUid": account,
         "txtPwd": password,
         "codeInput": "0000"
     }
-    # 登录填报系统
-    r = session.post(url=url, headers=login_header, data=data)
+
+    # 登录健康填报系统
+    r = session.post(url=login_url, headers=login_header, data=login_data)
+
+    # 获取登录结果
     soup = BeautifulSoup(r.text, 'lxml')
     a = soup.find(attrs={"type": "text/javascript"})
-    # global result
     try:
-        if a.text[:10] == "layer.open":
+        if a.text[:10] == "layer.open":  # 登录失败
             result = account + (a.text[22:][:-54])
             return result
-        else:
-            # print(xh + "登录成功")
+        else:  # 登录成功
             return True
     except:
-        result = account + "用户名或者密码错误，请重新输入!"
+        result = account + "登录失败，请重试!"
         return result
 
 
-def get_private_data():
-    """获取填报信息"""
-    data_url = "http://xg.sylu.edu.cn/SPCP/Web/Report/Index"
-    r = session.get(url=data_url)
+def get_submit_data(account, session):
+    """获取所需填报信息模块
+
+    Args:
+        account: 学号
+        session: 传入session, 保持会话
+    Return:
+        登录结果; 登录成功返回True, 失败则返回失败原因
+    """
+
+    submit_data_url = "http://xg.sylu.edu.cn/SPCP/Web/Report/Index"
+    r = session.get(url=submit_data_url)
     soup = BeautifulSoup(r.text, 'lxml')
-    # global result
+
+    # 将获取到的信息添加到submit_data表单
     try:
-        # 将信息添加到submit_data表单
-        datas = ["StudentId", "Name", "Sex", "SpeType", "CollegeNo", "SpeGrade", "SpecialtyName", "ClassName", "MoveTel", "IdCard",
+        datas = ["StudentId", "Name", "Sex", "SpeType", "CollegeNo", "SpeGrade", "SpecialtyName", "ClassName",
+                 "MoveTel", "IdCard",
                  "FaProvinceName", "FaCityName", "FaCountyName"]
         for data in datas:
             a = soup.find(id=data)
             submit_data[data] = a["value"]
-
-        # 设置当前所在其与家庭住址相同
+        # 设置当前所在地址与其家庭住址相同
         submit_data["ProvinceName"] = submit_data["FaProvinceName"]
         submit_data["CityName"] = submit_data["FaCityName"]
         submit_data["CountyName"] = submit_data["FaCountyName"]
@@ -154,56 +167,89 @@ def get_private_data():
         submit_data["ComeWhere"] = a["value"]
         a = soup.find(attrs={"name": "ReSubmiteFlag"})
         submit_data["ReSubmiteFlag"] = a["value"]
-        # print(submit_data)
-        return True
+
+        return True  # 获取成功
     except:
         a = soup.find(attrs={"type": "text/javascript"})
         if a.text[:10] == "layer.open":
-            result = str(acc["xh"]) + (a.text[22:][:-92])
+            result = account + (a.text[22:][:-92])  # 获取失败原因
         else:
-            result = str(acc["xh"]) + "填报失败"
+            result = account + "填报失败"
         return result
 
 
-def submit_healthcondition():
-    """提交信息表单"""
+def post_submit_data(account, session):
+    """提交信息表单模块
+
+    Args:
+        account: 学号
+        session: 传入session, 保持会话
+    Return:
+        登录结果; 登录成功返回True, 失败则返回失败原因
+    """
+
     post_url = 'http://xg.sylu.edu.cn/SPCP/Web/Report/Index'
     post_header = {
         "Host": "xg.sylu.edu.cn",
         "Origin": "http://xg.sylu.edu.cn",
         "Referer": "http://xg.sylu.edu.cn/SPCP/Web/Report/Index",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                      "Chrome/86.0.4240.198 Safari/537.36 "
     }
+
     # 提交表单，填报健康系统
     try:
         r = session.post(url=post_url, headers=post_header, data=submit_data)
         soup = BeautifulSoup(r.text, 'lxml')
         a = soup.find(attrs={"type": "text/javascript"})
         if a.text[:10] == "layer.open":
-            result = str(acc["xh"]) + (a.text[22:][:-92])
+            result = account + a.text[22:][:-92]  # 获取填报结果
         else:
-            result = str(acc["xh"]) + "填报失败，请重试"
+            result = account + "填报失败，请重试"
         return result
     except:
-        result = str(acc["xh"]) + "填报失败，请重试"
+        result = account + "填报失败，请重试"
         return result
+
+
+def submit_health_condition(account, password):
+    """登录并填报健康系统
+
+    可直接调用此函数, 传入学号密码参数即可进行健康系统填报,return值可自行修改
+    for example: submit_health_condition("1000000000", "100000")
+
+    Args:
+        account: 学号
+        password: 密码
+    Return:
+        list形式, [最终填报结果, 填报时间, 提交表单]
+    """
+
+    # 构造Session
+    session = requests.session()
+
+    # 若当前步骤失败，则不在往下进行
+    final_result = login_health_web(account, password, session)
+    if final_result is True:
+        final_result = get_submit_data(account, session)
+        if final_result is True:
+            final_result = post_submit_data(account, session)
+    post_time = time.asctime(time.localtime(time.time()))  # 填报时间
+    print(post_time)
+    print(final_result)
+    return [final_result, post_time, submit_data]
 
 
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
-    for acc in accounts:
-        # 构造Session
-        session = requests.session()
+    # 读取当前目录data.txt, 添加账号
+    # with open('/opt/HealthSubmit/data.json', 'r') as f_obj:
+    with open('data.json', 'r') as f_obj:
+        accounts = json.loads(f_obj.read())
 
-        # 若当前步骤失败，则不在往下进行
-        result = login_web(str(acc["xh"]), str(acc["pwd"]), web_url)
-        if result is True:
-            result = get_private_data()
-            if result is True:
-                result = submit_healthcondition()
-        submit_time = time.asctime(time.localtime(time.time()))
-        print(submit_time)
-        print(result)
-        send_email.email_result(result, submit_data, acc["email"], submit_time)
+    # 批量填报
+    for acc in accounts:
+        submit_result = submit_health_condition(acc["xh"], acc["pwd"])
+        # 邮件告知填报结果
+        submit_msg = submit_result[0]
+        submit_time = submit_result[1]
+        send_email.send_result(submit_msg, submit_data, acc["email"], submit_time)
         time.sleep(5)
