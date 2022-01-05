@@ -9,7 +9,7 @@ def send_result(result, submit_data, email, s_time, reg_flag):
         submit_data: 提交信息表单
         email: 收件人
         s_time: 健康系统填报时间
-        reg_flag: 0为初次提交信息邮件, 1为每日填报邮件, 2为取消填报邮件
+        reg_flag: 1为初次提交信息邮件, 0为每日填报邮件, -1为取消填报邮件
     Return:
         邮件发送结果，发送成功为True,失败为False
     """
@@ -30,12 +30,11 @@ def send_result(result, submit_data, email, s_time, reg_flag):
     ]
     ending = [
         "------------------------------", "提交时间 : " + s_time,
-        "若需取消自动填报可在网页重新填写学号密码，邮箱处填写[学号@密码.com]，提交即可",
-        "如学号为1800010101, 密码为000000, 邮箱填写1800010101@000000.com即可取消填报",
+        "若需取消自动填报可在网页重新填写学号密码，邮箱处填写[cancel@cancel.com]，提交即可取消自动填报",
         "以上信息为系统自动发送，请勿回复", "若有问题可发邮件至kiritor@qq.com", "---by jkor---"
     ]
 
-    if reg_flag == 1:  # 每日填报推送
+    if reg_flag == 0:  # 每日填报推送
         datas = {
             "StudentId": "学号",
             "Name": "姓名",
@@ -59,13 +58,13 @@ def send_result(result, submit_data, email, s_time, reg_flag):
 
         contents = beginning + submit_info + ending
 
-    elif reg_flag == 0:  # 初次注册提交
+    elif reg_flag == 1:  # 初次注册提交
         beginning = [
             "提交成功，若信息无误，将于每日9点-10点填报", "届时填报结果将以邮件告知，若未收到邮件，请检查垃圾箱，是否被拦截。",
             "------------------------------", "当前所在地会按照家庭所在地填写, 其余信息将按如下填写: "
         ]
         contents = beginning + submit_info + ending
-    elif reg_flag == 2:  # 取消自动填报
+    elif reg_flag == -1:  # 取消自动填报
         subject = "健康系统填报: %s已取消自动填报" % result[:10]
         beginning = [result[:10] + "已取消自动填报！", "若需重新自动填报, 重新提交正常学号密码邮箱即可。"]
         contents = beginning + ending
