@@ -260,5 +260,5 @@ if __name__ == '__main__':
                                submit_data,
                                acc["email"],
                                submit_time,
-                               reg_flag=False)
+                               reg_flag=0)
         time.sleep(5)
