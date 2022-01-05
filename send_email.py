@@ -9,7 +9,7 @@ def send_result(result, submit_data, email, s_time, reg_flag):
         submit_data: 提交信息表单
         email: 收件人
         s_time: 健康系统填报时间
-        reg_flag: 第一次提交信息标记
+        reg_flag: 0为初次提交信息邮件, 1为每日填报邮件, 2为取消填报邮件
     Return:
         邮件发送结果，发送成功为True,失败为False
     """
@@ -28,13 +28,14 @@ def send_result(result, submit_data, email, s_time, reg_flag):
         "您今日是否发生了所在地（跨地级市）异动变化? : 否", "您今日是否是确诊病例密切接触者? : 否",
         "您今日是否确诊为新冠肺炎病例? : 否", "您今日是否处于重点管控地区? : 否", "您今日是否处于重点关注地区? : 否"
     ]
-    msg = [
+    ending = [
         "------------------------------", "提交时间 : " + s_time,
-        "以上信息为系统自动发送，请勿回复", "若需取消自动填报或有其他问题可以发邮件至kiritor@qq.com",
-        "---by jkor---"
+        "若需取消自动填报可在网页重新填写学号密码，邮箱处填写[学号@密码.com]，提交即可",
+        "如学号为1800010101, 密码为000000, 邮箱填写1800010101@000000.com即可取消填报",
+        "以上信息为系统自动发送，请勿回复", "若有问题可发邮件至kiritor@qq.com", "---by jkor---"
     ]
-    if reg_flag is False:
-        # 邮件正文
+
+    if reg_flag == 1:  # 每日填报推送
         datas = {
             "StudentId": "学号",
             "Name": "姓名",
@@ -49,18 +50,25 @@ def send_result(result, submit_data, email, s_time, reg_flag):
             "FaCountyName": "家庭所在区/县",
             "FaComeWhere": "家庭所在地址",
         }
-        msg = submit_data['StudentId'] + "今日所填报信息如下: (若已填报或登陆失败请忽略)"
-        contents = [msg, "------------------------------"]
+        beginning = [
+            submit_data['StudentId'] + "今日所填报信息如下: (若已填报或登陆失败请忽略)",
+            "------------------------------"
+        ]
         for data, value in datas.items():
-            contents.append("%s : %s" % (value, submit_data[data]))
-    else:
-        contents = [
+            beginning.append("%s : %s" % (value, submit_data[data]))
+
+        contents = beginning + submit_info + ending
+
+    elif reg_flag == 0:  # 初次注册提交
+        beginning = [
             "提交成功，若信息无误，将于每日9点-10点填报", "届时填报结果将以邮件告知，若未收到邮件，请检查垃圾箱，是否被拦截。",
             "------------------------------", "当前所在地会按照家庭所在地填写, 其余信息将按如下填写: "
         ]
-
-    contents += submit_info
-    contents += msg
+        contents = beginning + submit_info + ending
+    elif reg_flag == 2:  # 取消自动填报
+        subject = "健康系统填报: %s已取消自动填报" % result[:10]
+        beginning = [result[:10] + "已取消自动填报！", "若需重新自动填报, 重新提交正常学号密码邮箱即可。"]
+        contents = beginning + ending
 
     # 发送邮件
     try:
