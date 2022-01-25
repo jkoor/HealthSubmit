@@ -3,10 +3,12 @@
 """健康系统自动填报"""
 
 import json
+import re
 import time
 
 import requests
 from bs4 import BeautifulSoup
+from paddleocr import PaddleOCR
 
 import send_email
 
@@ -47,6 +49,7 @@ submit_data = {
     "radio_13": "51fac408-9d07-4a7a-9375-b1872c4ab0bd",
     "text_4": "",
     "Other": "",
+    "VCcode": "",
     "GetAreaUrl": "/SPCP/Web/Report/GetArea",
     "IdCard": "",
     "ProvinceName": "",
@@ -89,15 +92,7 @@ submit_data = {
 
 
 def login_health_web(account, password, session):
-    """登录健康填报模块
-
-    Args:
-        account: 学号
-        password: 密码
-        session: 传入session, 保持会话
-    Return:
-        登录结果; 登录成功返回True, 失败则返回失败原因
-    """
+    """登录健康填报模块"""
 
     login_url = "http://xg.sylu.edu.cn/SPCP/Web/"  # 登录地址
     login_header = {
@@ -129,15 +124,32 @@ def login_health_web(account, password, session):
         return result
 
 
-def get_submit_data(account, session):
-    """获取所需填报信息模块
+def get_vccode(session):
+    img = "img.jpg"
+    # 获取验证码
+    vccode_url = "http://xg.sylu.edu.cn/SPCP/Web/Report/GetLoginVCode"
+    r = session.get(vccode_url)
+    with open(img, "wb") as f:
+        f.write(r.content)
 
-    Args:
-        account: 学号
-        session: 传入session, 保持会话
-    Return:
-        登录结果; 登录成功返回True, 失败则返回失败原因
-    """
+    # PalldeOCR识别
+    ocr = PaddleOCR()
+    result = ocr.ocr(img, det=False)
+
+    # 验证识别结果
+    try:
+        result = result[0][0].replace(' ', '')
+    except:
+        return get_vccode(session)
+    pattern = re.compile(r'[A-Za-z]{4}$')
+    if pattern.match(result):
+        return result
+    else:
+        return get_vccode(session)
+
+
+def get_submit_data(account, session):
+    """获取所需填报信息模块"""
 
     submit_data_url = "http://xg.sylu.edu.cn/SPCP/Web/Report/Index"
     r = session.get(url=submit_data_url)
@@ -167,7 +179,6 @@ def get_submit_data(account, session):
         submit_data["ComeWhere"] = a["value"]
         a = soup.find(attrs={"name": "ReSubmiteFlag"})
         submit_data["ReSubmiteFlag"] = a["value"]
-
         return True  # 获取成功
     except:
         a = soup.find(attrs={"type": "text/javascript"})
@@ -179,14 +190,7 @@ def get_submit_data(account, session):
 
 
 def post_submit_data(account, session):
-    """提交信息表单模块
-
-    Args:
-        account: 学号
-        session: 传入session, 保持会话
-    Return:
-        登录结果; 登录成功返回True, 失败则返回失败原因
-    """
+    """提交信息表单模块"""
 
     post_url = 'http://xg.sylu.edu.cn/SPCP/Web/Report/Index'
     post_header = {
@@ -196,32 +200,24 @@ def post_submit_data(account, session):
     }
 
     # 提交表单，填报健康系统
-    try:
-        r = session.post(url=post_url, headers=post_header, data=submit_data)
-        soup = BeautifulSoup(r.text, 'lxml')
-        a = soup.find(attrs={"type": "text/javascript"})
-        if a.text[:10] == "layer.open":
-            result = account + a.text[22:][:-92]  # 获取填报结果
-        else:
-            result = account + "填报失败，请重试"
-        return result
-    except:
+    submit_data["VCcode"] = get_vccode(session)
+    print(submit_data["VCcode"])
+    r = session.post(url=post_url, data=submit_data)
+    soup = BeautifulSoup(r.text, 'lxml')
+    a = soup.find(attrs={"type": "text/javascript"})
+    print(a)
+    if "验证码" in a.string:
+        return post_submit_data(account, session)
+
+    if a.text[:10] == "layer.open":
+        result = account + a.text[22:][:-92]  # 获取填报结果
+    else:
         result = account + "填报失败，请重试"
-        return result
+    return result
 
 
 def submit_health_condition(account, password):
-    """登录并填报健康系统
-
-    可直接调用此函数, 传入学号密码参数即可进行健康系统填报,return值可自行修改
-    for example: submit_health_condition("1000000000", "100000")
-
-    Args:
-        account: 学号
-        password: 密码
-    Return:
-        list形式, [最终填报结果, 填报时间, 提交表单]
-    """
+    """登录并填报健康系统"""
 
     # 构造Session
     session = requests.session()
@@ -232,24 +228,26 @@ def submit_health_condition(account, password):
         final_result = get_submit_data(account, session)
         if final_result is True:
             final_result = post_submit_data(account, session)
+
     post_time = time.asctime(time.localtime(time.time()))  # 填报时间
-    print(post_time)
     print(final_result)
+    print(post_time)
     return [final_result, post_time, submit_data]
 
 
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
-    # 读取当前目录data.txt, 添加账号
-    # with open('/opt/HealthSubmit/data.json', 'r') as f_obj:
-    with open('data.json', 'r') as f_obj:
-        accounts = json.loads(f_obj.read())
+    submit_health_condition("1805030317", "182216")
 
-    # 批量填报
-    for acc in accounts:
-        submit_result = submit_health_condition(acc["xh"], acc["pwd"])
-        # 邮件告知填报结果
-        submit_msg = submit_result[0]
-        submit_time = submit_result[1]
-        send_email.send_result(submit_msg, submit_data, acc["email"], submit_time)
-        time.sleep(5)
+    # # 读取当前目录data.txt, 添加账号
+    # with open('data.json', 'r') as f_obj:
+    #     accounts = json.loads(f_obj.read())
+
+    # # 批量填报
+    # for acc in accounts:
+    #     submit_result = submit_health_condition(acc["xh"], acc["pwd"])
+    #     # 邮件告知填报结果
+    #     submit_msg = submit_result[0]
+    #     submit_time = submit_result[1]
+    #     send_email.send_result(submit_msg, submit_data, acc["email"], submit_time)
+    #     time.sleep(3)
