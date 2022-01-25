@@ -14,18 +14,12 @@ def send_result(result, submit_data, email, s_time):
     # 邮件正文
     # datas = ["StudentId", "Name", "Sex", "ClassName", "MoveTel", "FaProvinceName", "FaCityName", "FaCountyName"]
     datas = {
-        "StudentId": "学号",
         "Name": "姓名",
-        "ClassName": "班级",
         "MoveTel": "手机号",
         "ProvinceName": "所在省",
         "CityName": "所在市",
         "CountyName": "所在区/县",
-        "ComeWhere": "所在地址",
-        "FaProvinceName": "家庭所在省",
-        "FaCityName": "家庭所在市",
-        "FaCountyName": "家庭所在区/县",
-        "FaComeWhere": "家庭所在地址",
+        "ComeWhere": "所在地址"
     }
     msg = submit_data['StudentId'] + "今日所填报信息如下: (若已填报或登陆失败请忽略)"
     contents = [msg, "------------------------------"]
