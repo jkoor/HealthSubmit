@@ -102,13 +102,13 @@ def post_submit_data(session):
     r = session.post(url=parms["post_url"], data=submit_data)
     soup = BeautifulSoup(r.text, 'lxml')
     a = soup.find(attrs={"type": "text/javascript"})
-    # layer.open({content: '验证码已经过期，请重新输入！', btn: '确定', yes: function(index){history.back()}});
     print(a.text)
     if "验证码" in a.string:
         return post_submit_data(session)
 
     if a.text[:10] == "layer.open":
-        return a.text[22:][:-54]
+        return a.text
+        # return a.text[22:][:-92]  # 获取填报结果
     else:
         return "填报失败，请重试"
 
@@ -133,7 +133,7 @@ def submit_health_condition(account, password):
                 submit_health_condition(account, password)
 
     post_time = time.asctime(time.localtime(time.time()))  # 填报时间
-    # print(account, password, result, post_time)
+    print(account, password, result, post_time)
     result_info = {"result": result, "post_time": post_time, "submit_data": submit_data}
     return result_info
 
@@ -155,11 +155,11 @@ if __name__ == '__main__':
     #         submit_health_condition(account, password)
 
     # 读取当前目录data.txt, 添加账号
-    f_obj = open('stus_info.json', 'r')
+    f_obj = open('stus_info_1.json', 'r')
     stus = json.loads(f_obj.read())
     # 批量填报
     for stu in stus:
         result_info = submit_health_condition(stu["xh"], stu["pwd"])
         # 邮件告知填报结果
-        send_email.send_result(result_info, stu["xh"], stu["email"], reg_flag=0)
+        # send_email.send_result(result_info, stu["xh"], stu["email"], reg_flag=0)
         time.sleep(3)
