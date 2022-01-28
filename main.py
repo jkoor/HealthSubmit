@@ -20,6 +20,7 @@ def login_health_web(session, parms):
     r = session.post(url=parms["login_url"], headers=parms["login_header"], data=parms["login_data"])
 
     # 返回登录结果
+
     soup = BeautifulSoup(r.text, 'lxml')
     a = soup.find(attrs={"type": "text/javascript"})
     # print(a.text)
@@ -63,9 +64,11 @@ def get_submit_data(session, parms, submit_data):
 
     # 将获取到的信息添加到submit_data表单
     try:
-        datas = ["StudentId", "Name", "Sex", "SpeType", "CollegeNo", "SpeGrade", "SpecialtyName", "ClassName",
-                 "MoveTel", "IdCard",
-                 "FaProvinceName", "FaCityName", "FaCountyName"]
+        datas = [
+            "StudentId", "Name", "Sex", "SpeType", "CollegeNo", "SpeGrade",
+            "SpecialtyName", "ClassName", "MoveTel", "IdCard",
+            "FaProvinceName", "FaCityName", "FaCountyName"
+        ]
         for data in datas:
             a = soup.find(id=data)
             submit_data[data] = a["value"]
@@ -73,14 +76,16 @@ def get_submit_data(session, parms, submit_data):
         submit_data["ProvinceName"] = submit_data["FaProvinceName"]
         submit_data["CityName"] = submit_data["FaCityName"]
         submit_data["CountyName"] = submit_data["FaCountyName"]
-        a = soup.find(class_="select-style required validate", attrs={"name": "FaCounty"})
+        a = soup.find(class_="select-style required validate",
+                      attrs={"name": "FaCounty"})
         submit_data["FaProvince"] = a["data-defaultvalue"][:2] + "0000"
         submit_data["FaCity"] = a["data-defaultvalue"][:4] + "00"
         submit_data["FaCounty"] = a["data-defaultvalue"]
         submit_data["Province"] = submit_data["FaProvince"]
         submit_data["City"] = submit_data["FaCity"]
         submit_data["County"] = submit_data["FaCounty"]
-        a = soup.find(class_="required validate input-style", attrs={"name": "FaComeWhere"})
+        a = soup.find(class_="required validate input-style",
+                      attrs={"name": "FaComeWhere"})
         submit_data["FaComeWhere"] = a["value"]
         submit_data["ComeWhere"] = a["value"]
         a = soup.find(attrs={"name": "ReSubmiteFlag"})
@@ -152,6 +157,7 @@ if __name__ == '__main__':
     # 读取当前目录data.txt, 添加账号
     f_obj = open('stus_info.json', 'r')
     stus = json.loads(f_obj.read())
+
     # 批量填报
     for stu in stus:
         result_info = submit_health_condition(stu["xh"], stu["pwd"])
