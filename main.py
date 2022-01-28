@@ -2,7 +2,7 @@
 # Author: JKOR
 """健康系统自动填报"""
 
-import json
+import os
 import re
 import time
 
@@ -122,7 +122,14 @@ def post_submit_data(session, parms, submit_data):
 
 
 def submit_health_condition(account, password):
-    """登录并填报健康系统"""
+    """健康系统填报
+
+    Args:
+        account: 学号
+        password: 密码
+    Return:
+        result_info字典，包含提交结果，提交时间，提交数据
+    """
 
     # 读取config
     f_obj = open('config.yml', 'r', encoding='utf-8')
@@ -154,13 +161,20 @@ def submit_health_condition(account, password):
 
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
-    # 读取当前目录data.txt, 添加账号
-    f_obj = open('stus_info.json', 'r')
-    stus = json.loads(f_obj.read())
+    # try:
+    #     STU_ID = os.environ['STU_ID']
+    #     STU_PWD = os.environ['STU_PWD']
+    #     STU_EMAIL = os.environ['STU_EMAIL']
+    # except:
+    #     STU_ID = '1805000000'
+    #     STU_PWD = '000000'
+    #     STU_EMAIL = 'abc@qq.com'
+    STU_ID = os.environ['STU_ID']
+    STU_PWD = os.environ['STU_PWD']
+    STU_EMAIL = os.environ['STU_EMAIL']
 
-    # 批量填报
-    for stu in stus:
-        result_info = submit_health_condition(stu["xh"], stu["pwd"])
-        # 邮件告知填报结果
-        send_email.send_result(result_info, stu["xh"], stu["email"])
-        time.sleep(3)
+    # 健康系统填报
+    result_info = submit_health_condition(STU_ID, STU_PWD)
+    # 邮件告知填报结果
+    send_email.send_result(result_info, STU_ID, STU_EMAIL)
+
