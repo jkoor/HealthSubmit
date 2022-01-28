@@ -1,5 +1,8 @@
 max_retry_times: 5
 
+user_data: # 用户自定义提交表单，变量需与submit_data中变量相同
+  blackCount: '4'
+
 parms:
   login_url: http://xg.sylu.edu.cn/SPCP/Web/  # 登录地址
   vccode_url: http://xg.sylu.edu.cn/SPCP/Web/Report/GetLoginVCode #获取验证码地址
@@ -95,3 +98,5 @@ submit_data:  # 待提交表单
   text_2: ''
   text_3: ''
   text_4: ''
+
+

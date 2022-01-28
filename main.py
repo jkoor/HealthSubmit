@@ -56,7 +56,7 @@ def get_vccode(session, parms):
         return get_vccode(session, parms)
 
 
-def get_submit_data(session, parms, submit_data):
+def get_submit_data(session, parms, submit_data, user_data):
     """获取所需填报信息模块"""
 
     r = session.get(url=parms["submit_data_url"])
@@ -90,6 +90,9 @@ def get_submit_data(session, parms, submit_data):
         submit_data["ComeWhere"] = a["value"]
         a = soup.find(attrs={"name": "ReSubmiteFlag"})
         submit_data["ReSubmiteFlag"] = a["value"]
+
+        for k, v in user_data:
+            submit_data[k] = v
         return True  # 获取成功
     except:
         a = soup.find(attrs={"type": "text/javascript"})
@@ -103,7 +106,6 @@ def get_submit_data(session, parms, submit_data):
 def post_submit_data(session, parms, submit_data):
     """提交信息表单模块"""
 
-    # 提交表单，填报健康系统
     submit_data["VCcode"] = get_vccode(session, parms)
     print(submit_data["VCcode"])
     r = session.post(url=parms["post_url"], data=submit_data)
@@ -135,6 +137,7 @@ def submit_health_condition(account, password):
     f_obj = open('config.yml', 'r', encoding='utf-8')
     config = yaml.safe_load(f_obj.read())
     parms = config["parms"]
+    user_data = config["user_data"]
     submit_data = config["submit_data"]
     parms["login_data"]["txtUid"] = account
     parms["login_data"]["txtPwd"] = password
@@ -146,7 +149,7 @@ def submit_health_condition(account, password):
     # 若当前步骤失败，则不在往下进行
     result = login_health_web(session, parms)
     if result is True:
-        result = get_submit_data(session, parms, submit_data)
+        result = get_submit_data(session, parms, submit_data, user_data)
         if result is True:
             result = post_submit_data(session, parms, submit_data)
             if "重复提交" in result and retry_times <= config["max_retry_times"]:  # 尝试次数过多则取消填报，返回填报失败
@@ -161,17 +164,9 @@ def submit_health_condition(account, password):
 
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
-    # try:
-    #     STU_ID = os.environ['STU_ID']
-    #     STU_PWD = os.environ['STU_PWD']
-    #     STU_EMAIL = os.environ['STU_EMAIL']
-    # except:
-    #     STU_ID = '1805000000'
-    #     STU_PWD = '000000'
-    #     STU_EMAIL = 'abc@qq.com'
-    STU_ID = os.environ['STU_ID']
-    STU_PWD = os.environ['STU_PWD']
-    STU_EMAIL = os.environ['STU_EMAIL']
+    STU_ID = os.environ['STU_ID']  # 学号
+    STU_PWD = os.environ['STU_PWD']  # 密码
+    STU_EMAIL = os.environ['STU_EMAIL']  # 邮箱
 
     # 健康系统填报
     result_info = submit_health_condition(STU_ID, STU_PWD)
