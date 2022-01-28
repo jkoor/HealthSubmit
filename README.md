@@ -38,7 +38,7 @@
   EMAIL_PWD: 123456789  # 填报结果发送方邮箱密码，并开启POP3协议
   ```
 
-[![7zDuHs.md.png](https://s4.ax1x.com/2022/01/28/7zDuHs.md.png)]    
+![](https://s3.bmp.ovh/imgs/2022/01/b772dd26b98ee7b7.png)     
 4. 请先点击项目右上角`☆Star`进行填报测试，运行时间约 **3min**，将以邮件告知填报结果
 5. 将于每日 9 点自动进行健康填报
 ***
