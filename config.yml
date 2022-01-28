@@ -1,0 +1,97 @@
+max_retry_times: 5
+
+parms:
+  login_url: http://xg.sylu.edu.cn/SPCP/Web/  # 登录地址
+  vccode_url: http://xg.sylu.edu.cn/SPCP/Web/Report/GetLoginVCode #获取验证码地址
+  vccode_save_path: img.jpg #验证码保存路径
+  submit_data_url: http://xg.sylu.edu.cn/SPCP/Web/Report/Index  # 获取填报信息地址
+  post_url: http://xg.sylu.edu.cn/SPCP/Web/Report/Index # 提交地址
+  login_header: # 登录地址header
+    Host: xg.sylu.edu.cn
+    Origin: http://xg.sylu.edu.cn
+    Referer: http://xg.sylu.edu.cn/SPCP/Web/
+  login_data: # 登录地址data
+    StuLoginMode: "1"
+    txtUid:
+    txtPwd:
+    codeInput: "0000"
+  post_header:  # 提交地址header
+    Host: xg.sylu.edu.cn
+    Origin: http://xg.sylu.edu.cn
+    Referer: http://xg.sylu.edu.cn/SPCP/Web/Report/Index
+
+submit_data:  # 待提交表单
+  City: ''
+  CityName: ''
+  ClassName: ''
+  CollegeNo: ''
+  ComeWhere: ''
+  County: ''
+  CountyName: ''
+  FaCity: ''
+  FaCityName: ''
+  FaComeWhere: ''
+  FaCounty: ''
+  FaCountyName: ''
+  FaProvince: ''
+  FaProvinceName: ''
+  GetAreaUrl: /SPCP/Web/Report/GetArea
+  IdCard: ''
+  MoveTel: ''
+  Name: ''
+  Other: ''
+  PZData: '[{"OptionName": "是", "SelectId": "e2f169d0-0778-4e3e-8ebf-64ce5a44f307",
+                "TitleId": "926853bd-6292-48ef-b554-0ea0cb99b808", "OptionType": "0"},
+               {"OptionName": "否", "SelectId": "c8ecb725-9788-4ed0-b9d2-4be23444ce3e",
+                "TitleId": "5c2ddaef-1cf4-4995-921c-de1585e71fe1", "OptionType": "0"},
+               {"OptionName": "否", "SelectId": "a884f81e-f401-451d-9f3d-0526aa886feb",
+                "TitleId": "6f95a926-c6d6-4fa7-9d74-fbcfcd79ec7b", "OptionType": "0"},
+               {"OptionName": "否", "SelectId": "62ad9bed-3201-4607-b845-5e279a0311d0",
+                "TitleId": "6cd479f3-dd6a-4bab-809a-3abdf28e5a46", "OptionType": "0"},
+               {"OptionName": "否", "SelectId": "57722ddd-3093-4978-86da-1213420f36c4",
+                "TitleId": "e6f578a6-6a0d-4b17-a18f-f1de3cb81d29", "OptionType": "0"},
+               {"OptionName": "否", "SelectId": "c6bcc8ce-86f1-404c-b7f8-ac583d899c75",
+                "TitleId": "23dfd17a-84b0-462c-a27d-fbafbe670278", "OptionType": "0"},
+               {"OptionName": "否", "SelectId": "12727e9b-cd2f-413e-ae30-36adafd5203f",
+                "TitleId": "0428ad6d-0c14-4c38-81fb-dc6928ae6608", "OptionType": "0"},
+               {"OptionName": "否", "SelectId": "e0559a52-d3d1-4203-ac9a-d221506a507f",
+                "TitleId": "85e00a79-176f-4fcf-8d14-8bb14075d51f", "OptionType": "0"},
+               {"OptionName": "否", "SelectId": "c16d5a27-5923-43d8-b6a6-d5733803490b",
+                "TitleId": "bd5a0708-79a3-4c92-a978-03aba2dac8a8", "OptionType": "0"},
+               {"OptionName": "否", "SelectId": "3a5fbe75-7bf4-4b6d-93f1-f561dbbf0ead",
+                "TitleId": "91d7f9a5-aed8-462f-81f5-9d339c3f2d3a", "OptionType": "0"},
+               {"OptionName": "否", "SelectId": "3a36a22f-5af7-4b48-a472-7df55a8ba374",
+                "TitleId": "025d0800-de7d-45e3-b2b4-c240bec5aa51", "OptionType": "0"},
+               {"OptionName": "否", "SelectId": "8f1dddba-8bfc-4b06-8f9c-44a50d7c5ceb",
+                "TitleId": "0827f0a0-60eb-4c62-9741-d742bf569ece", "OptionType": "0"},
+               {"OptionName": "否", "SelectId": "51fac408-9d07-4a7a-9375-b1872c4ab0bd",
+                "TitleId": "7d852786-1eca-4beb-82f2-9b52fd46ad6e", "OptionType": "0"}]'
+  Province: ''
+  ProvinceName: ''
+  ReSubmiteFlag: ''
+  Sex: ''
+  SpeGrade: ''
+  SpeType: ''
+  SpecialtyName: ''
+  StudentId: ''
+  VCcode: ''
+  blackCount: '4'
+  checkboxCount: '0'
+  radioCount: '13'
+  radio_1: e2f169d0-0778-4e3e-8ebf-64ce5a44f307
+  radio_10: 3a5fbe75-7bf4-4b6d-93f1-f561dbbf0ead
+  radio_11: 3a36a22f-5af7-4b48-a472-7df55a8ba374
+  radio_12: 8f1dddba-8bfc-4b06-8f9c-44a50d7c5ceb
+  radio_13: 51fac408-9d07-4a7a-9375-b1872c4ab0bd
+  radio_2: c8ecb725-9788-4ed0-b9d2-4be23444ce3e
+  radio_3: a884f81e-f401-451d-9f3d-0526aa886feb
+  radio_4: 62ad9bed-3201-4607-b845-5e279a0311d0
+  radio_5: 57722ddd-3093-4978-86da-1213420f36c4
+  radio_6: c6bcc8ce-86f1-404c-b7f8-ac583d899c75
+  radio_7: 12727e9b-cd2f-413e-ae30-36adafd5203f
+  radio_8: e0559a52-d3d1-4203-ac9a-d221506a507f
+  radio_9: c16d5a27-5923-43d8-b6a6-d5733803490b
+  text_1: ''
+  text_2: ''
+  text_3: ''
+  text_4: ''
