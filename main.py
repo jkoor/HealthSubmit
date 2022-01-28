@@ -3,18 +3,18 @@
 """健康系统自动填报"""
 
 import json
-import yaml
 import re
 import time
 
 import requests
+import yaml
 from bs4 import BeautifulSoup
 from paddleocr import PaddleOCR
 
 import send_email
 
 
-def login_health_web(session):
+def login_health_web(session, parms):
     """登录健康填报模块"""
 
     r = session.post(url=parms["login_url"], headers=parms["login_header"], data=parms["login_data"])
@@ -25,36 +25,37 @@ def login_health_web(session):
     # print(a.text)
     try:
         if a.text[:10] == "layer.open":  # 登录失败
-            return a.text[22:][:-54]
+            pattern = re.compile(r"content: '(.*)', btn")
+            return re.findall(pattern, a.string)[0]
         else:  # 登录成功
             return True
     except:
         return "登录失败，请重试!"
 
 
-def get_vccode(session):
+def get_vccode(session, parms):
     # 获取验证码
     r = session.get(parms["vccode_url"])
-    with open(config["img"], "wb") as f:
+    with open(parms["vccode_save_path"], "wb") as f:
         f.write(r.content)
 
     # PalldeOCR识别
     ocr = PaddleOCR()
-    result = ocr.ocr(config["img"], det=False)
+    result = ocr.ocr(parms["vccode_save_path"], det=False)
 
     # 验证识别结果
     try:
         result = result[0][0].replace(' ', '')
     except:
-        return get_vccode(session)
+        return get_vccode(session, parms)
     pattern = re.compile(r'[A-Za-z]{4}$')
     if pattern.match(result):
         return result
     else:
-        return get_vccode(session)
+        return get_vccode(session, parms)
 
 
-def get_submit_data(session):
+def get_submit_data(session, parms, submit_data):
     """获取所需填报信息模块"""
 
     r = session.get(url=parms["submit_data_url"])
@@ -88,64 +89,66 @@ def get_submit_data(session):
     except:
         a = soup.find(attrs={"type": "text/javascript"})
         if a.text[:10] == "layer.open":
-            return a.text[22:][:-92]  # 获取失败原因
+            pattern = re.compile(r"content: '(.*)', btn")
+            return re.findall(pattern, a.string)[0]  # 获取失败原因
         else:
             return "填报失败"
 
 
-def post_submit_data(session):
+def post_submit_data(session, parms, submit_data):
     """提交信息表单模块"""
 
     # 提交表单，填报健康系统
-    submit_data["VCcode"] = get_vccode(session)
+    submit_data["VCcode"] = get_vccode(session, parms)
     print(submit_data["VCcode"])
     r = session.post(url=parms["post_url"], data=submit_data)
     soup = BeautifulSoup(r.text, 'lxml')
     a = soup.find(attrs={"type": "text/javascript"})
-    # layer.open({content: '验证码已经过期，请重新输入！', btn: '确定', yes: function(index){history.back()}});
-    print(a.text)
-    if "验证码" in a.string:
-        return post_submit_data(session)
-
-    if a.text[:10] == "layer.open":
-        return a.text[22:][:-54]
-    else:
+    # a = """layer.open({content: '验证码已经过期，请重新输入！', btn: '确定', yes: function(index){history.back()}});"""
+    try:
+        pattern = re.compile(r"content: '(.*)', btn")
+        result = re.findall(pattern, a.string)[0]
+        if "验证码" in result:
+            return post_submit_data(session, parms, submit_data)
+        else:
+            return result
+    except:
         return "填报失败，请重试"
 
 
 def submit_health_condition(account, password):
     """登录并填报健康系统"""
 
+    # 读取config
+    f_obj = open('config.yml', 'r', encoding='utf-8')
+    config = yaml.safe_load(f_obj.read())
+    parms = config["parms"]
+    submit_data = config["submit_data"]
+    parms["login_data"]["txtUid"] = account
+    parms["login_data"]["txtPwd"] = password
+
     # 构造Session
     session = requests.session()
 
     retry_times = 0  # 提交失败重试次数
-    parms["login_data"]["txtUid"] = account
-    parms["login_data"]["txtPwd"] = password
     # 若当前步骤失败，则不在往下进行
-    result = login_health_web(session)
+    result = login_health_web(session, parms)
     if result is True:
-        result = get_submit_data(session)
+        result = get_submit_data(session, parms, submit_data)
         if result is True:
-            result = post_submit_data(session)
+            result = post_submit_data(session, parms, submit_data)
             if "重复提交" in result and retry_times <= config["max_retry_times"]:  # 尝试次数过多则取消填报，返回填报失败
                 retry_times += 1
                 submit_health_condition(account, password)
 
     post_time = time.asctime(time.localtime(time.time()))  # 填报时间
-    # print(account, password, result, post_time)
+    print(account, password, result, post_time)
     result_info = {"result": result, "post_time": post_time, "submit_data": submit_data}
     return result_info
 
 
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
-    # 读取config
-    f_obj = open('config.yml', 'r', encoding='utf-8')
-    config = yaml.safe_load(f_obj.read())
-    parms = config["parms"]
-    submit_data = config["submit_data"]
-
     # submit_health_condition("1805030317", "182216")
 
     # with open('data.txt', 'r') as f_obj:
@@ -161,5 +164,5 @@ if __name__ == '__main__':
     for stu in stus:
         result_info = submit_health_condition(stu["xh"], stu["pwd"])
         # 邮件告知填报结果
-        send_email.send_result(result_info, stu["xh"], stu["email"], reg_flag=0)
+        send_email.send_result(result_info, stu["xh"], stu["email"])
         time.sleep(3)
