@@ -25,13 +25,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Pass the received secret to an action
-      uses: ./.github/workflows/python-app
-      with:
+    - name: Launch main.py
+      env:
         STU_ID: ${{secrets.STU_ID}}
         STU_PWD: ${{secrets.STU_PWD}}
         EMAIL_USER: ${{secrets.EMAIL_USER}}
         EMAIL_PWD: ${{secrets.EMAIL_PWD}}
-    - name: Launch main.py
       run: |
         python main.py
