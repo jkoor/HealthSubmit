@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Python application
+name: 沈阳理工大学健康系统自动填报
 
 on:
   schedule:
@@ -35,5 +35,10 @@ jobs:
 #       run: |
 #         pytest
     - name: Launch main.py
+      env:
+        STU_ID: ${{secrets.STU_ID}}
+        STU_PWD: ${{secrets.STU_PWD}}
+        EMAIL_USER: ${{secrets.EMAIL_USER}}
+        EMAIL_PWD: ${{secrets.EMAIL_PWD}}
       run: |
         python main.py
