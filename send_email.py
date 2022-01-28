@@ -14,8 +14,8 @@ def send_result(result_info, account, email, reg_flag=0):
     """
 
     # 链接邮箱服务器
-    yag = yagmail.SMTP(user="jkoor@qq.com",
-                       password="nuycoijvbrknbfgc",
+    yag = yagmail.SMTP(user="example@qq.com",
+                       password="*******",
                        host='smtp.qq.com')
 
     # 邮件主题
