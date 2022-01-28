@@ -1,9 +1,9 @@
-img: img.jpg
 max_retry_times: 5
 
 parms:
   login_url: http://xg.sylu.edu.cn/SPCP/Web/  # 登录地址
   vccode_url: http://xg.sylu.edu.cn/SPCP/Web/Report/GetLoginVCode #获取验证码地址
+  vccode_save_path: img.jpg #验证码保存路径
   submit_data_url: http://xg.sylu.edu.cn/SPCP/Web/Report/Index  # 获取填报信息地址
   post_url: http://xg.sylu.edu.cn/SPCP/Web/Report/Index # 提交地址
   login_header: # 登录地址header
