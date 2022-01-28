@@ -29,6 +29,7 @@ jobs:
       env:
         STU_ID: ${{secrets.STU_ID}}
         STU_PWD: ${{secrets.STU_PWD}}
+        STU_EMAIL: ${{secrets.STU_EMAIL}}
         EMAIL_USER: ${{secrets.EMAIL_USER}}
         EMAIL_PWD: ${{secrets.EMAIL_PWD}}
       run: |
