@@ -58,7 +58,8 @@ HealthSubmit
 ...
 on:
   schedule:
-   - cron: 58 9 * * *  # 每日9:58填报
+  # UTC标准时间，为北京时间减8h，如北京时间上午9:00为UTC 1:00
+   - cron: 58 1 * * *  # 北京时间每日9:58填报
   watch:
     types: [started]
 ...
