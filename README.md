@@ -11,8 +11,8 @@
 - 可自定义提交表单, 如当前所在地等
 - 无第三方介入，无需担心隐私问题
   
-```
-# 文件目录
+```txt
+文件目录
 HealthSubmit
 ├─ .github
 │    └─ workflows
@@ -28,7 +28,7 @@ HealthSubmit
 ## 2. 开始使用
 
 1. `Fork` 项目
-2. 打开 Fork 项目，进入项目设置- Security - Secrets - Actions
+2. 打开 Fork 项目，进入项目设置 Settings - Security - Secrets - Actions
 3. 添加如下五个键值
 
    ```yaml
@@ -81,6 +81,8 @@ user_data: # 用户自定义提交表单，变量需与submit_data中变量相�
 不想折腾？ 那就试试这个吧
 
 填写学号、密码、邮箱即可，每日自动填报
+
+不过，这就与前面所说的没有第三方介入背道而驰了🤭
 
 `Demo` [http://101.43.133.188:5000/](http://101.43.133.188:5000/)
 
