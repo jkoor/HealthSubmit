@@ -5,7 +5,7 @@ name: 健康系统自动填报
 
 on:
   schedule:
-   - cron: 0 9 * * *
+   - cron: 0 1 * * *  # UTC标准时间，转换为北京时间需要加8h，如UTC 1:00即北京时间上午9:00
   watch:
     types: [started]
 
