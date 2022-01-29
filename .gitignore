@@ -114,3 +114,5 @@ dmypy.json
 .pyre/
 .idea/.name
 *.iml
+.idea/.name
+.idea/.name
