@@ -1,5 +1,7 @@
 # 健康系统自动填报
 
+[![健康系统自动填报](https://github.com/jkoor/HealthSubmit/actions/workflows/auto_submit.yml/badge.svg?branch=main)](https://github.com/jkoor/HealthSubmit/actions/workflows/auto_submit.yml)
+
 利用GitHub Action实现沈阳理工大学学生健康情况自动填报
 
 ---
