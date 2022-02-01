@@ -100,7 +100,7 @@ def get_submit_data(session, parms, submit_data, user_data):
             pattern = re.compile(r"content: '(.*)', btn")
             return re.findall(pattern, a.string)[0]  # 获取失败原因
         else:
-            return "填报失败"
+            return "填报失败(获取表单失败)"
 
 
 def post_submit_data(session, parms, submit_data):
@@ -120,7 +120,7 @@ def post_submit_data(session, parms, submit_data):
         else:
             return result
     except:
-        return "填报失败，请重试"
+        return "填报失败(提交失败)"
 
 
 def submit_health_condition(account, password):
@@ -171,5 +171,5 @@ if __name__ == '__main__':
     # 健康系统填报
     result_info = submit_health_condition(STU_ID, STU_PWD)
     # 邮件告知填报结果
-    send_email.send_result(result_info, STU_ID, STU_EMAIL)
+    email_result = send_email.send_result(result_info, STU_ID, STU_EMAIL)
 

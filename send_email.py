@@ -75,8 +75,8 @@ def send_result(result_info, account, email, reg_flag=0):
     # 发送邮件
     try:
         yag.send(email, subject, contents)
-        print("邮件发送成功")
-        return True
+        # print("邮件发送成功")
+        return "邮件发送成功"
     except:
-        print("邮件发送失败")
-        return False
+        # print("邮件发送失败")
+        return "邮件发送成功"
