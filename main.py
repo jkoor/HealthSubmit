@@ -91,7 +91,7 @@ def get_submit_data(session, parms, submit_data, user_data):
         a = soup.find(attrs={"name": "ReSubmiteFlag"})
         submit_data["ReSubmiteFlag"] = a["value"]
 
-        for k, v in user_data:
+        for k, v in user_data.items():
             submit_data[k] = v
         return True  # 获取成功
     except:
