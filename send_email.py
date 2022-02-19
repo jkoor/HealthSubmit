@@ -54,6 +54,11 @@ def send_result(result_info, account, email, reg_flag=0):
             "家庭所在地: " + submit_data["FaProvinceName"] + submit_data["FaCityName"] + submit_data["FaCountyName"] +
             submit_data["FaComeWhere"]
         ]
+        try:
+            beginning += ["------------------------------", "每日体温填报: "]
+            beginning += result_info["temperature_result"]
+        except:
+            pass
         beginning += submit_info
     elif reg_flag == 1:  # 初次注册提交
         beginning = [
