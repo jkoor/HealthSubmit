@@ -34,6 +34,23 @@ def login_health_web(session, parms):
         return "登录失败，请重试!"
 
 
+def post_temperature(session, parms, temperature):
+    """体温提交模块"""
+
+    r = session.post(url=parms["temperature_url"], data=temperature)
+    soup = BeautifulSoup(r.text, 'lxml')
+    a = soup.find(attrs={"type": "text/javascript"})
+    try:
+        pattern = re.compile(r"content: '(.*)', btn")
+        result = temperature["TimeNowHour"] + ':' + temperature["TimeNowMinute"] + '  ' + temperature["Temper1"] + '.' + \
+                 temperature["Temper2"] + '℃  '
+        result += re.findall(pattern, a.string)[0]
+        print(result)
+        return result
+    except:
+        return "体温填报失败(提交失败)"
+
+
 def get_vccode(session, parms):
     # 获取验证码
     r = session.get(parms["vccode_url"])
@@ -56,7 +73,7 @@ def get_vccode(session, parms):
         return get_vccode(session, parms)
 
 
-def get_submit_data(session, parms, submit_data):
+def get_submit_data(session, parms, submit_data, user_data):
     """获取所需填报信息模块"""
 
     r = session.get(url=parms["submit_data_url"])
@@ -90,6 +107,9 @@ def get_submit_data(session, parms, submit_data):
         submit_data["ComeWhere"] = a["value"]
         a = soup.find(attrs={"name": "ReSubmiteFlag"})
         submit_data["ReSubmiteFlag"] = a["value"]
+
+        for k, v in user_data.items():
+            submit_data[k] = v
         return True  # 获取成功
     except:
         a = soup.find(attrs={"type": "text/javascript"})
@@ -97,15 +117,14 @@ def get_submit_data(session, parms, submit_data):
             pattern = re.compile(r"content: '(.*)', btn")
             return re.findall(pattern, a.string)[0]  # 获取失败原因
         else:
-            return "填报失败"
+            return "填报失败(获取表单失败)"
 
 
 def post_submit_data(session, parms, submit_data):
     """提交信息表单模块"""
 
-    # 提交表单，填报健康系统
     submit_data["VCcode"] = get_vccode(session, parms)
-    print(submit_data["VCcode"])
+    # print(submit_data["VCcode"])
     r = session.post(url=parms["post_url"], data=submit_data)
     soup = BeautifulSoup(r.text, 'lxml')
     a = soup.find(attrs={"type": "text/javascript"})
@@ -118,16 +137,24 @@ def post_submit_data(session, parms, submit_data):
         else:
             return result
     except:
-        return "填报失败，请重试"
+        return "填报失败(提交失败)"
 
 
-def submit_health_condition(account, password):
-    """登录并填报健康系统"""
+def submit_health_condition(account, password, retry_times=0):
+    """健康系统填报
+
+    Args:
+        account: 学号
+        password: 密码
+    Return:
+        result_info字典，包含提交结果，提交时间，提交数据
+    """
 
     # 读取config
     f_obj = open('config.yml', 'r', encoding='utf-8')
     config = yaml.safe_load(f_obj.read())
     parms = config["parms"]
+    user_data = config["user_data"]
     submit_data = config["submit_data"]
     parms["login_data"]["txtUid"] = account
     parms["login_data"]["txtPwd"] = password
@@ -135,21 +162,53 @@ def submit_health_condition(account, password):
     # 构造Session
     session = requests.session()
 
-    retry_times = 0  # 提交失败重试次数
     # 若当前步骤失败，则不在往下进行
     result = login_health_web(session, parms)
     if result is True:
-        result = get_submit_data(session, parms, submit_data)
+        # 健康系统填报
+        result = get_submit_data(session, parms, submit_data, user_data)
         if result is True:
             result = post_submit_data(session, parms, submit_data)
-            if "重复提交" in result and retry_times <= config["max_retry_times"]:  # 尝试次数过多则取消填报，返回填报失败
+            if "重复" in result and retry_times <= config["max_retry_times"]:  # 尝试次数过多则取消填报，返回填报失败
                 retry_times += 1
-                submit_health_condition(account, password)
+                submit_health_condition(account, password, retry_times)
 
     post_time = time.asctime(time.localtime(time.time()))  # 填报时间
     print(account, password, result, post_time)
     result_info = {"result": result, "post_time": post_time, "submit_data": submit_data}
     return result_info
+
+
+def submit_temperature(account, password):
+    """体温填报
+
+    Args:
+        account: 学号
+        password: 密码
+    Return:
+        result_info字典，包含提交结果，提交时间，提交数据
+    """
+
+    # 读取config
+    f_obj = open('config.yml', 'r', encoding='utf-8')
+    config = yaml.safe_load(f_obj.read())
+    parms = config["parms"]
+    temperature_data = config["temperature_data"]
+    parms["login_data"]["txtUid"] = account
+    parms["login_data"]["txtPwd"] = password
+
+    # 构造Session
+    session = requests.session()
+
+    # 若当前步骤失败，则不在往下进行
+    result = login_health_web(session, parms)
+    if result is True:
+        temperature_result = []
+        for temperature in temperature_data:
+            result = post_temperature(session, parms, temperature)
+            temperature_result.append(result)
+
+    return temperature_result
 
 
 # 按间距中的绿色按钮以运行脚本。
@@ -161,6 +220,8 @@ if __name__ == '__main__':
     # 批量填报
     for stu in stus:
         result_info = submit_health_condition(stu["xh"], stu["pwd"])
+        # 体温填报
+        result_info["temperature_result"] = submit_temperature(stu["xh"], stu["pwd"])
         # 邮件告知填报结果
         send_email.send_result(result_info, stu["xh"], stu["email"])
         time.sleep(3)

@@ -55,6 +55,11 @@ def send_result(result_info, account, email, reg_flag=0):
             "------------------------------",
             "当前所在地会按照家庭所在地填写, 其余信息将按如下填写: "
         ]
+        try:
+            beginning += ["------------------------------", "每日体温填报: "]
+            beginning += result_info["temperature_result"]
+        except:
+            pass
         beginning += submit_info
     elif reg_flag == -1:  # 取消自动填报
         subject = "健康系统填报: %s已取消自动填报" % account
