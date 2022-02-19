@@ -107,7 +107,7 @@ def post_submit_data(session, parms, submit_data):
     """提交信息表单模块"""
 
     submit_data["VCcode"] = get_vccode(session, parms)
-    print(submit_data["VCcode"])
+    # print(submit_data["VCcode"])
     r = session.post(url=parms["post_url"], data=submit_data)
     soup = BeautifulSoup(r.text, 'lxml')
     a = soup.find(attrs={"type": "text/javascript"})
@@ -123,7 +123,7 @@ def post_submit_data(session, parms, submit_data):
         return "填报失败(提交失败)"
 
 
-def submit_health_condition(account, password):
+def submit_health_condition(account, password, retry_times=0):
     """健康系统填报
 
     Args:
@@ -145,16 +145,15 @@ def submit_health_condition(account, password):
     # 构造Session
     session = requests.session()
 
-    retry_times = 0  # 提交失败重试次数
     # 若当前步骤失败，则不在往下进行
     result = login_health_web(session, parms)
     if result is True:
         result = get_submit_data(session, parms, submit_data, user_data)
         if result is True:
             result = post_submit_data(session, parms, submit_data)
-            if "重复提交" in result and retry_times <= config["max_retry_times"]:  # 尝试次数过多则取消填报，返回填报失败
+            if "重复" in result and retry_times <= config["max_retry_times"]:  # 尝试次数过多则取消填报，返回填报失败
                 retry_times += 1
-                submit_health_condition(account, password)
+                submit_health_condition(account, password, retry_times)
 
     post_time = time.asctime(time.localtime(time.time()))  # 填报时间
     print(account, password, result, post_time)
