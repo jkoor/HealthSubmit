@@ -25,18 +25,18 @@ class HealthCondition:
         config["parms"]["login_data"]["txtUid"] = account
         config["parms"]["login_data"]["txtPwd"] = password
 
-        self.account = account
-        self.password = password
-        self.email = email
-        self.parms = config["parms"]
-        self.user_data = config["user_data"]
-        self.temperature_data = config["temperature_data"]
-        self.submit_data = config["submit_data"]
-        self.temperature_flag = config["temperature_flag"]
-        self.max_retry_times = config["max_retry_times"]
-        self.session = requests.session()
-        self.result = ''
-        self.post_time = time.asctime(time.localtime(time.time()))
+        self.account = account  # 学号
+        self.password = password  # 密码
+        self.email = email  # 邮箱
+        self.parms = config["parms"]  # 登录参数
+        self.user_data = config["user_data"]  # 自定义提交表单
+        self.temperature_data = config["temperature_data"]  # 体温提交表单
+        self.submit_data = config["submit_data"]  # 健康系统提交表单
+        self.temperature_flag = config["temperature_flag"]  # 是否进行体温填报
+        self.max_retry_times = config["max_retry_times"]  # 填报失败重试次数
+        self.session = requests.session()  # 创建session会话
+        self.result = ''  # 填报结果
+        self.post_time = time.asctime(time.localtime(time.time()))  # 填报时间
 
     def submit_health_condition(self):
         """填报体温及健康系统"""

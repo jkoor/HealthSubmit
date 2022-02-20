@@ -1,5 +1,5 @@
 temperature_flag: True  # 是否进行体温填报
-max_retry_times: 10  # 验证码识别失败重试次数
+max_retry_times: 15  # 验证码识别失败重试次数
 
 user_data: # 用户自定义提交表单，变量需与submit_data中变量相同
   blackCount: '4'

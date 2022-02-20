@@ -9,6 +9,7 @@
 ## 1. 特点
 
 - 支持最近更新的验证码
+- 支持每日三次体温填报
 - 利用GitHub Action，无需搭建服务器
 - 可自定义提交表单, 如当前所在地等
 - 无第三方介入，无需担心隐私问题
@@ -20,9 +21,10 @@ HealthSubmit
 │    └─ workflows
 │           └─ auto_submit.yml  # GitHub Action配置文件
 ├─ config.yml  # 项目配置文件
-├─ main.py  # 填报主程序
+├─ main.py  # 主程序
 ├─ requirements.txt  # 所需Python运行环境
-└─ send_email.py  # 邮件发送程序
+├─ template.html  # 邮件发送模板
+└─ uilts.py  # 登录填报函数
 ```
 
 ---
@@ -51,6 +53,12 @@ HealthSubmit
 ## 3. 注意事项
 
 - 五个键值必须填写，邮箱密码错误不会发送邮件，但填报正常
+- 若不需要体温填报功能，请在config.yml更改
+
+```ymal
+  temperature_flag: False  # 取消体温填报
+```
+
 - 程序运行情况可进 `Action` 查看
   ![运行结果](https://s3.bmp.ovh/imgs/2022/01/16d8c7bdebf6ffdc.png)
 - 每点击一次项目右上角 `☆Star`便会运行一次
@@ -98,32 +106,32 @@ user_data: # 用户自定义提交表单，变量需与submit_data中变量相�
   pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
   ```
 
-- ### main.py
+- ### uilts.py
   
   ```python
-  result_info = submit_health_condition(STU_ID, STU_PWD)
-  # STU_ID: 学号  STU_PWD: 密码
-  # 返回值为填报结果
-  # 每调用一次该函数会进行一次填报，可用该函数完成批量填报
-  ```
-
-- ### send_email.py
-  
-  ```python
-  send_result(result_info, account, email)
-  # result_info: 填报结果返回值  account: 学号  email: 接收邮箱
-  # 返回值为发送邮件结果  True/False
+  student = HealthCondition(account, password, email)  # 调用主类
+  student.submit_health_condition()  # 每调用一次该函数会进行一次填报，可用该函数完成批量填报
+  student.send_email()  # 邮件告知填报结果
+  student.result  # 健康系统填报结果
+  student.submit_data  # 健康系统提交表单
+  student.temperature_data  # 体温提交表单
+  student.post_time  # 提交时间
+  # 其余函数及参数请查看uilts.py
   ```
 
 - ### 示范
   
   ```python
   # 进行一次健康填报并发送邮件告知结果
-  import main
-  import send_email
-  result_info = main.submit_health_condition('1805000000', '123456')
-  print(result_info)
-  send_result(result_info, '1805000000', 'abc@qq.com')
+  from uilts import HealthCondition
+  student = HealthCondition("1805000000", "000000", "abc@qq.com")  # 创建类
+  student.submit_health_condition()  # 健康系统填报
+  student.send_email()  # 邮件告知填报结果
+  print(student.account)
+  print(student.result)
+  print(student.submit_data)
+  print(student.temperature_data)
+  print(student.post_time)
   ```
 
 ---
