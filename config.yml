@@ -1,3 +1,4 @@
+temperature_flag: True  # 是否进行体温填报
 max_retry_times: 10  # 验证码识别失败重试次数
 
 user_data: # 用户自定义提交表单，变量需与submit_data中变量相同
@@ -28,25 +29,25 @@ parms:
     Origin: http://xg.sylu.edu.cn
     Referer: http://xg.sylu.edu.cn/SPCP/Web/Temperature/StuTemperatureInfo
 
-temperature_data:
+temperature_data: # 体温提交表单
   -
-    TimeNowHour: '8'
-    TimeNowMinute: '10'
-    Temper1: '36'
-    Temper2: '5'
+    TimeNowHour: '8'  # 小时
+    TimeNowMinute: '10' # 分钟
+    Temper1: '36' # 温度
+    Temper2: '5'  # 温度小数位
     ReSubmiteFlag: 5cf47681-2009-45a5-b581-13d4af9288de
   -
     TimeNowHour: '14'
     TimeNowMinute: '10'
     Temper1: '36'
     Temper2: '6'
-    ReSubmiteFlag: 5cf47681-2009-45a5-b581-13d4af9288de
+    ReSubmiteFlag: 5cf47681-2010-45a5-b581-13d4af9288da
   -
     TimeNowHour: '20'
     TimeNowMinute: '10'
     Temper1: '36'
     Temper2: '7'
-    ReSubmiteFlag: 5cf47681-2009-45a5-b581-13d4af9288de
+    ReSubmiteFlag: 5cf47681-2020-45a5-b581-13d4af9288dc
 
 submit_data:  # 待提交表单
   City: ''
