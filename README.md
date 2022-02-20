@@ -120,10 +120,10 @@ user_data: # 用户自定义提交表单，变量需与submit_data中变量相�
   ```
 
 - ### 示范
-  
+
   ```python
   # 进行一次健康填报并发送邮件告知结果
-  from uilts import HealthCondition
+  from utils import HealthCondition
   student = HealthCondition("1805000000", "000000", "abc@qq.com")  # 创建类
   student.submit_health_condition()  # 健康系统填报
   student.send_email()  # 邮件告知填报结果
