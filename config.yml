@@ -1,11 +1,15 @@
-max_retry_times: 5
+max_retry_times: 10  # 验证码识别失败重试次数
+
+user_data: # 用户自定义提交表单，变量需与submit_data中变量相同
+  blackCount: '4'
 
 parms:
   login_url: http://xg.sylu.edu.cn/SPCP/Web/  # 登录地址
   vccode_url: http://xg.sylu.edu.cn/SPCP/Web/Report/GetLoginVCode #获取验证码地址
   vccode_save_path: img.jpg #验证码保存路径
   submit_data_url: http://xg.sylu.edu.cn/SPCP/Web/Report/Index  # 获取填报信息地址
-  post_url: http://xg.sylu.edu.cn/SPCP/Web/Report/Index # 提交地址
+  post_url: http://xg.sylu.edu.cn/SPCP/Web/Report/Index # 健康系统提交地址
+  temperature_url: http://xg.sylu.edu.cn/SPCP/Web/Temperature/StuTemperatureInfo # 体温提交地址
   login_header: # 登录地址header
     Host: xg.sylu.edu.cn
     Origin: http://xg.sylu.edu.cn
@@ -15,10 +19,34 @@ parms:
     txtUid:
     txtPwd:
     codeInput: "0000"
-  post_header:  # 提交地址header
+  post_header:  # 健康系统提交地址header
     Host: xg.sylu.edu.cn
     Origin: http://xg.sylu.edu.cn
     Referer: http://xg.sylu.edu.cn/SPCP/Web/Report/Index
+  temperature_header:
+    Host: xg.sylu.edu.cn
+    Origin: http://xg.sylu.edu.cn
+    Referer: http://xg.sylu.edu.cn/SPCP/Web/Temperature/StuTemperatureInfo
+
+temperature_data:
+  -
+    TimeNowHour: '8'
+    TimeNowMinute: '10'
+    Temper1: '36'
+    Temper2: '5'
+    ReSubmiteFlag: 5cf47681-2009-45a5-b581-13d4af9288de
+  -
+    TimeNowHour: '14'
+    TimeNowMinute: '10'
+    Temper1: '36'
+    Temper2: '6'
+    ReSubmiteFlag: 5cf47681-2009-45a5-b581-13d4af9288de
+  -
+    TimeNowHour: '20'
+    TimeNowMinute: '10'
+    Temper1: '36'
+    Temper2: '7'
+    ReSubmiteFlag: 5cf47681-2009-45a5-b581-13d4af9288de
 
 submit_data:  # 待提交表单
   City: ''
@@ -95,3 +123,5 @@ submit_data:  # 待提交表单
   text_2: ''
   text_3: ''
   text_4: ''
+
+

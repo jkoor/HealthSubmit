@@ -1,11 +1,12 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Python application
+name: 健康系统自动填报
 
 on:
   schedule:
-   - cron: 0 8 * * *
+  # UTC标准时间，为北京时间减8h，如北京时间上午9:00为UTC 1:00
+   - cron: 0 0 * * *  # 北京时间每日上午9:00填报
   watch:
     types: [started]
 
@@ -23,17 +24,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-#     - name: Lint with flake8
-#       run: |
-#         # stop the build if there are Python syntax errors or undefined names
-#         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-#         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-#         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-#     - name: Test with pytest
-#       run: |
-#         pytest
     - name: Launch main.py
+      env:
+        STU_ID: ${{secrets.STU_ID}}
+        STU_PWD: ${{secrets.STU_PWD}}
+        STU_EMAIL: ${{secrets.STU_EMAIL}}
+        EMAIL_USER: ${{secrets.EMAIL_USER}}
+        EMAIL_PWD: ${{secrets.EMAIL_PWD}}
       run: |
         python main.py

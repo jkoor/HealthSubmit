@@ -1,3 +1,5 @@
+import os
+
 import yagmail
 
 
@@ -13,9 +15,11 @@ def send_result(result_info, account, email, reg_flag=0):
         邮件发送结果，发送成功为True,失败为False
     """
 
+    EMAIL_USER = os.environ['EMAIL_USER']
+    EMAIL_PWD = os.environ['EMAIL_PWD']
     # 链接邮箱服务器
-    yag = yagmail.SMTP(user="example@qq.com",
-                       password="*******",
+    yag = yagmail.SMTP(user=EMAIL_USER,
+                       password=EMAIL_PWD,
                        host='smtp.qq.com')
 
     # 邮件主题
@@ -45,9 +49,16 @@ def send_result(result_info, account, email, reg_flag=0):
             "姓名: " + submit_data["Name"],
             "班级: " + submit_data["ClassName"],
             "手机号: " + submit_data["MoveTel"],
-            "当前所在地: " + submit_data["ProvinceName"] + submit_data["CityName"] + submit_data["CountyName"] + submit_data["ComeWhere"],
-            "家庭所在地: " + submit_data["FaProvinceName"] + submit_data["FaCityName"] + submit_data["FaCountyName"] + submit_data["FaComeWhere"]
+            "当前所在地: " + submit_data["ProvinceName"] + submit_data["CityName"] + submit_data["CountyName"] + submit_data[
+                "ComeWhere"],
+            "家庭所在地: " + submit_data["FaProvinceName"] + submit_data["FaCityName"] + submit_data["FaCountyName"] +
+            submit_data["FaComeWhere"]
         ]
+        try:
+            beginning += ["------------------------------", "每日体温填报: "]
+            beginning += result_info["temperature_result"]
+        except:
+            pass
         beginning += submit_info
     elif reg_flag == 1:  # 初次注册提交
         beginning = [
@@ -62,17 +73,15 @@ def send_result(result_info, account, email, reg_flag=0):
 
     ending = [
         "------------------------------",
-        "提交时间 : " + result_info["post_time"],
-        "重填学号密码，邮箱填写[cancel@cancel.com]可取消填报",
-        "网址: http://101.43.133.188:5000",
-        "反馈邮箱: kiritor@qq.com",
-        "---by jkor---"
+        "提交时间 : " + result_info["post_time"]
     ]
     contents = beginning + ending
 
     # 发送邮件
     try:
         yag.send(email, subject, contents)
+        print("邮件发送成功")
         return True
     except:
+        print("邮件发送失败")
         return False
