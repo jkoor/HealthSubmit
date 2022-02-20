@@ -1,0 +1,29 @@
+{{ account }}今日所填报信息如下
+------------------------------
+{% if temperature_flag %}
+每日体温填报：
+{% for t_data in temperature_data %}时间: {{ t_data["TimeNowHour"] }}:{{ t_data["TimeNowMinute"] }}  温度: {{ t_data["Temper1"] }}.{{ t_data["Temper2"] }}   结果: {{ t_data["result"] }}<br>{% endfor %}
+------------------------------{% endif %}
+姓名: {{ submit_data["Name"] }}
+班级: {{ submit_data["ClassName"] }}
+手机号: {{ submit_data["MoveTel"] }}
+当前所在地: {{ submit_data["ProvinceName"] }}{{ submit_data["CityName"] }}{{ submit_data["CountyName"] }}{{ submit_data["ComeWhere"] }}
+家庭所在地: {{ submit_data["FaProvinceName"] }}{{ submit_data["FaCityName"] }}{{ submit_data["FaCountyName"] }}{{ submit_data["FaComeWhere"] }}
+------------------------------
+您今天体温是否正常? : 是
+您今日是否处于中高风险地区? : 否
+和您共同居住的家庭成员是否有新冠肺炎确诊或疑似病例? : 否
+您是否正在进行集中隔离? : 否
+您是否今日解除集中隔离? : 否
+您是否正在进行居家隔离? : 否
+您今日是否进行了核酸检测? : 否
+您今日是否发生了所在地（跨地级市）异动变化? : 否
+您今日是否是确诊病例密切接触者? : 否
+您今日是否确诊为新冠肺炎病例? : 否
+您今日是否处于重点管控地区? : 否
+您今日是否处于重点关注地区? : 否
+------------------------------
+提交时间: {{ post_time }}
+<!--重填学号密码，邮箱填写[cancel@cancel.com]可取消填报-->
+<!--网址: http://101.43.133.188:5000-->
+<!--反馈邮箱: kiritor@qq.com-->
