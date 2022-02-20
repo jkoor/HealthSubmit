@@ -2,6 +2,7 @@
 # Author: JKOR
 """健康系统自动填报"""
 
+import time
 import json
 
 from utils import HealthCondition
@@ -22,3 +23,4 @@ if __name__ == '__main__':
                 print("体温填报：", t_data["result"])
 
         student.send_email()  # 发送邮件告知填报结果
+        time.sleep(3)
