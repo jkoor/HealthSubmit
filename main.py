@@ -4,7 +4,7 @@
 
 import os
 
-from uilts import HealthCondition
+from utils import HealthCondition
 
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':

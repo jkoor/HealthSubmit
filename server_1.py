@@ -4,7 +4,7 @@
 
 import json
 
-from uilts import HealthCondition
+from utils import HealthCondition
 
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
@@ -18,7 +18,8 @@ if __name__ == '__main__':
         student.temperature_flag = False
         student.submit_health_condition()  # 健康系统及体温填报
         print(student.account, student.result)
-        for t_data in student.temperature_data:
-            print("体温填报：", t_data["result"])
+        if student.temperature_flag:
+            for t_data in student.temperature_data:
+                print("体温填报：", t_data["result"])
 
         student.send_email()  # 发送邮件告知填报结果
