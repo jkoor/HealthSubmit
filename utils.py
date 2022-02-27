@@ -174,8 +174,8 @@ class HealthCondition:
         return self.result
 
     def send_email(self):
-        EMAIL_USER = os.environ['EMAIL_USER']
-        EMAIL_PWD = os.environ['EMAIL_PWD']
+        EMAIL_USER = 'abc@qq.com'
+        EMAIL_PWD = '123456'
         # 链接邮箱服务器
         yag = yagmail.SMTP(user=EMAIL_USER,
                            password=EMAIL_PWD,
