@@ -36,6 +36,7 @@ class HealthCondition:
         self.max_retry_times = config["max_retry_times"]  # 填报失败重试次数
         self.session = requests.session()  # 创建session会话
         self.result = ''  # 填报结果
+        self.email_result = None  # 邮件发送结果
         self.post_time = time.asctime(time.localtime(time.time()))  # 填报时间
 
     def submit_health_condition(self):
@@ -188,4 +189,12 @@ class HealthCondition:
                                    submit_data=self.submit_data, post_time=self.post_time,
                                    temperature_flag=self.temperature_flag)  # 渲染
 
-        yag.send(self.email, subject, contents)
+        try:
+            yag.send(self.email, subject, contents)
+            self.email_result = True
+            return True
+        except:
+            self.email_result = False
+            return False
+
+
