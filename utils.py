@@ -17,11 +17,12 @@ from paddleocr import PaddleOCR
 class HealthCondition:
     """登录并操作健康系统"""
 
-    def __init__(self, account, password, email):
+    def __init__(self, account, password, email, config='config.yml'):
         """初始化参数"""
         # 读取config
-        f_obj = open('config.yml', 'r', encoding='utf-8')
+        f_obj = open(config, 'r', encoding='utf-8')
         config = yaml.safe_load(f_obj.read())
+        print(config)
         config["parms"]["login_data"]["txtUid"] = account
         config["parms"]["login_data"]["txtPwd"] = password
 
@@ -173,7 +174,7 @@ class HealthCondition:
             self.result = "健康系统填报失败(提交失败)"
         return self.result
 
-    def send_email(self):
+    def send_email(self, template='template.html'):
         EMAIL_USER = os.environ['EMAIL_USER']
         EMAIL_PWD = os.environ['EMAIL_PWD']
         # 链接邮箱服务器
@@ -184,10 +185,10 @@ class HealthCondition:
         subject = "健康系统填报: " + self.account + self.result
 
         env = Environment(loader=FileSystemLoader(os.path.abspath('.')))  # 创建一个包加载器对象
-        template = env.get_template('template.html')  # 获取一个模板文件
-        contents = template.render(account=self.account, temperature_data=self.temperature_data,
+        template = env.get_template(template)  # 获取一个模板文件
+        contents = template.render(account=self.account, password=self.password, temperature_data=self.temperature_data,
                                    submit_data=self.submit_data, post_time=self.post_time,
-                                   temperature_flag=self.temperature_flag)  # 渲染
+                                   temperature_flag=self.temperature_flag, result=self.result)  # 渲染
 
         try:
             yag.send(self.email, subject, contents)
@@ -196,5 +197,3 @@ class HealthCondition:
         except:
             self.email_result = False
             return False
-
-
