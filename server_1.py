@@ -18,10 +18,11 @@ if __name__ == '__main__':
         student = HealthCondition(stu["xh"], stu["pwd"], stu["email"])
         student.temperature_flag = False
         student.submit_health_condition()  # 健康系统及体温填报
-        print(student.account, student.result)
+        student.send_email()  # 发送邮件告知填报结果
+
+        # 打印填报结果
+        print(student.account, student.result, student.email_result)
         if student.temperature_flag:
             for t_data in student.temperature_data:
                 print("体温填报：", t_data["result"])
-
-        student.send_email()  # 发送邮件告知填报结果
         time.sleep(3)
