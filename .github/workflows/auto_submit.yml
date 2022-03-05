@@ -4,9 +4,9 @@
 name: 健康系统自动填报
 
 on:
-  schedule:
+  #schedule:
   # UTC标准时间，为北京时间减8h，如北京时间上午9:00为UTC 1:00
-   - cron: 0 0 * * *  # 北京时间每日上午9:00填报
+   #- cron: 0 0 * * *  # 北京时间每日上午9:00填报
   watch:
     types: [started]
 
